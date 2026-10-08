@@ -1,0 +1,952 @@
+/* HariTrail Trail Map webview. Everything is themed from VS Code's own CSS variables. */
+
+:root {
+  --k-read: var(--vscode-haritrail-read, #6cb6ff);
+  --k-edit: var(--vscode-haritrail-edit, #e3b341);
+  --k-create: var(--vscode-haritrail-create, #57c78a);
+  --k-search: var(--vscode-haritrail-search, #b392f0);
+  --k-run: var(--vscode-haritrail-run, #f0883e);
+  --k-delegate: var(--vscode-haritrail-delegate, #56d4dd);
+  --k-plan: var(--vscode-haritrail-plan, #9da7b3);
+  --k-you: var(--vscode-haritrail-you, #ff7eb6);
+  --k-error: var(--vscode-haritrail-error, #f85149);
+  --fg: var(--vscode-foreground);
+  --muted: var(--vscode-descriptionForeground);
+  --bg: var(--vscode-editor-background);
+  --panel: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  --border: var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35)));
+  --hover: var(--vscode-list-hoverBackground);
+  --focus: var(--vscode-focusBorder);
+  --mono: var(--vscode-editor-font-family, monospace);
+  --radius: 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size, 13px);
+}
+
+#app {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  height: 100vh;
+}
+
+#app > * {
+  min-width: 0;
+}
+
+button,
+select,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  min-height: 40px;
+}
+
+.title {
+  flex: 1 1 160px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title .prompt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.title .num {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.live {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--k-create);
+}
+
+.live.on {
+  display: inline-flex;
+}
+
+.live::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+}
+
+select {
+  background: var(--vscode-dropdown-background);
+  border: 1px solid var(--vscode-dropdown-border, var(--border));
+  color: var(--vscode-dropdown-foreground);
+  border-radius: 2px;
+  padding: 2px 6px;
+  max-width: 240px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+select:focus,
+button:focus-visible,
+input:focus-visible {
+  outline: 1px solid var(--focus);
+  outline-offset: -1px;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--vscode-button-secondaryBackground, var(--border));
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.seg button {
+  border: 0;
+  background: transparent;
+  padding: 3px 10px;
+  cursor: pointer;
+  color: var(--fg);
+}
+
+.seg button + button {
+  border-left: 1px solid var(--vscode-button-secondaryBackground, var(--border));
+}
+
+.seg button.on {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+.btn {
+  border: 0;
+  border-radius: 2px;
+  padding: 3px 10px;
+  cursor: pointer;
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+}
+
+.btn:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.btn.primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+.btn.primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.icon-btn {
+  border: 0;
+  background: transparent;
+  width: 26px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
+}
+
+.icon-btn:hover {
+  background: var(--vscode-toolbar-hoverBackground, var(--hover));
+}
+
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* ---------------------------------------------------------------- stats + phases */
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stat b {
+  color: var(--fg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-right: 3px;
+}
+
+.stat .dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: 1px;
+}
+
+.ribbon {
+  position: relative;
+  display: flex;
+  height: 22px;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  overflow: hidden;
+}
+
+.ribbon .run {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--fg);
+  cursor: pointer;
+  border-right: 1px solid var(--bg);
+}
+
+.ribbon .run span {
+  position: relative;
+  padding: 0 4px;
+  opacity: 0.9;
+}
+
+.ribbon .run::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0.16;
+}
+
+.ribbon .run.explore {
+  color: var(--k-read);
+}
+
+.ribbon .run.change {
+  color: var(--k-edit);
+}
+
+.ribbon .run.verify {
+  color: var(--k-run);
+}
+
+.ribbon .run.other {
+  color: var(--k-plan);
+}
+
+.ribbon .run.future {
+  opacity: 0.35;
+}
+
+.ribbon .cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--fg);
+  opacity: 0.7;
+  pointer-events: none;
+  transition: left 0.15s ease;
+}
+
+.ribbon .legend {
+  position: absolute;
+  right: 8px;
+  top: 3px;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- body */
+
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  min-height: 0;
+}
+
+.main.no-side {
+  grid-template-columns: minmax(0, 1fr) 0;
+}
+
+.main.no-side .side {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 42%;
+  }
+  .main.no-side {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 0;
+  }
+  .replay .pos,
+  .replay label {
+    display: none;
+  }
+  .side {
+    border-left: 0 !important;
+    border-top: 1px solid var(--border);
+  }
+}
+
+.stage {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.stage svg.map {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  user-select: none;
+}
+
+.stage svg.map.dragging {
+  cursor: grabbing;
+}
+
+.stage .floating {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  gap: 2px;
+  background: var(--vscode-editorWidget-background);
+  border: 1px solid var(--vscode-editorWidget-border, var(--border));
+  border-radius: 6px;
+  padding: 2px;
+  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.3));
+}
+
+.newpill {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  display: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 4px 12px;
+  cursor: pointer;
+  background: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.3));
+}
+
+.newpill.on {
+  display: block;
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  text-align: center;
+  padding: 24px;
+}
+
+.empty h2 {
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0;
+}
+
+.empty code {
+  font-family: var(--mono);
+  background: var(--vscode-textCodeBlock-background);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* map elements */
+.hull {
+  fill: var(--fg);
+  fill-opacity: 0.035;
+  stroke: var(--fg);
+  stroke-opacity: 0.12;
+  stroke-dasharray: 3 4;
+}
+
+.group-label {
+  fill: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.node-label {
+  fill: var(--fg);
+  font-size: 11.5px;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.node-label.dim,
+.node.dim {
+  opacity: 0.28;
+}
+
+.node {
+  cursor: pointer;
+}
+
+.node circle.core,
+.node rect.core {
+  stroke: var(--bg);
+  stroke-width: 2px;
+}
+
+.node .halo {
+  fill: none;
+  stroke-width: 2px;
+  opacity: 0;
+}
+
+.node.selected .halo,
+.node.here .halo {
+  opacity: 1;
+}
+
+.node.here .halo {
+  animation: halo 1.6s ease-out infinite;
+}
+
+@keyframes halo {
+  0% {
+    stroke-opacity: 0.9;
+    stroke-width: 2px;
+  }
+  100% {
+    stroke-opacity: 0;
+    stroke-width: 10px;
+  }
+}
+
+.station-glyph {
+  fill: var(--bg);
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.edge {
+  fill: none;
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+  opacity: 0.32;
+  transition: opacity 0.2s;
+}
+
+.edge.recent {
+  opacity: 0.85;
+}
+
+.edge.current {
+  opacity: 1;
+  stroke-width: 2.4px;
+  stroke-dasharray: 6 5;
+  animation: march 0.9s linear infinite;
+}
+
+.edge.hl {
+  opacity: 1;
+  stroke-width: 2.6px;
+}
+
+.edge.faded {
+  opacity: 0.08;
+}
+
+@keyframes march {
+  to {
+    stroke-dashoffset: -11;
+  }
+}
+
+.edge-num {
+  font-size: 9.5px;
+  fill: var(--muted);
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+  pointer-events: none;
+}
+
+.comet {
+  pointer-events: none;
+}
+
+.comet circle {
+  fill: var(--fg);
+}
+
+/* lanes */
+.lanes {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+
+.lanes-inner {
+  display: flex;
+  min-width: max-content;
+}
+
+.lane-labels {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  box-shadow: 4px 0 6px -4px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.35));
+  flex: none;
+}
+
+.lane-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lane-label:hover {
+  background: var(--hover);
+}
+
+.lane-label .sw {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.lane-label .sw.station {
+  border-radius: 2px;
+}
+
+.lane-label .dir {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lane-label.head {
+  color: var(--muted);
+  font-size: 11px;
+  cursor: default;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lane-label.head:hover {
+  background: transparent;
+}
+
+svg.lanes-svg {
+  display: block;
+  flex: none;
+}
+
+.lane-row {
+  fill: var(--fg);
+  fill-opacity: 0.025;
+}
+
+.lane-col-label {
+  fill: var(--muted);
+  font-size: 10px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.lane-path {
+  fill: none;
+  stroke: var(--fg);
+  stroke-opacity: 0.35;
+  stroke-width: 1.5px;
+}
+
+.lane-path.future {
+  stroke-opacity: 0.1;
+}
+
+.lane-dot {
+  cursor: pointer;
+  stroke: var(--bg);
+  stroke-width: 2px;
+}
+
+.lane-dot.future {
+  opacity: 0.25;
+}
+
+.lane-dot.sub {
+  stroke-dasharray: 2 2;
+}
+
+.lane-ring {
+  fill: none;
+  stroke-width: 2px;
+  pointer-events: none;
+}
+
+.lane-cursor {
+  stroke: var(--fg);
+  stroke-width: 1.5px;
+  stroke-opacity: 0.6;
+  stroke-dasharray: 3 3;
+}
+
+.lane-sel {
+  fill: none;
+  stroke: var(--focus);
+  stroke-width: 2px;
+}
+
+.lane-phase {
+  fill-opacity: 0.07;
+}
+
+.lane-sep {
+  stroke: var(--border);
+  stroke-width: 1px;
+}
+
+.lane-exp-label {
+  fill: var(--muted);
+  font-size: 10.5px;
+}
+
+.lane-mark {
+  font-size: 10px;
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- side panel */
+
+.side {
+  border-left: 1px solid var(--border);
+  background: var(--panel);
+  overflow: auto;
+  min-height: 0;
+  padding: 12px 14px 20px;
+}
+
+.side h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 16px 0 6px;
+  font-weight: 600;
+}
+
+.side h3:first-child {
+  margin-top: 2px;
+}
+
+.step-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.step-title {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.step-meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.step-meta .bad {
+  color: var(--k-error);
+}
+
+.step-meta .good {
+  color: var(--k-create);
+}
+
+.say {
+  border-left: 2px solid var(--k-plan);
+  padding: 2px 0 2px 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+details.think summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+details.think div {
+  white-space: pre-wrap;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+pre {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.12));
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.flag {
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  background: var(--vscode-inputValidation-warningBackground, rgba(227, 179, 65, 0.12));
+  border: 1px solid var(--vscode-inputValidation-warningBorder, transparent);
+}
+
+.insight {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.insight:hover,
+.insight.on {
+  background: var(--hover);
+}
+
+.insight .ic {
+  flex: none;
+  width: 16px;
+  text-align: center;
+}
+
+.insight.warn .ic {
+  color: var(--k-run);
+}
+
+.insight.good .ic {
+  color: var(--k-create);
+}
+
+.insight.info .ic {
+  color: var(--k-read);
+}
+
+.prompt-full {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+  max-height: 160px;
+  overflow: auto;
+}
+
+.you {
+  border-left: 2px solid var(--k-you);
+  padding: 2px 0 2px 10px;
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+}
+
+.navrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legend-grid span::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: var(--c);
+}
+
+/* ---------------------------------------------------------------- replay bar */
+
+.replay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--vscode-editorWidget-background, var(--bg));
+}
+
+.replay input[type='range'] {
+  flex: 1;
+  accent-color: var(--vscode-button-background);
+  min-width: 80px;
+}
+
+.replay .pos {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 12px;
+  min-width: 92px;
+  text-align: right;
+}
+
+.replay label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tip {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  max-width: 360px;
+  background: var(--vscode-editorHoverWidget-background);
+  color: var(--vscode-editorHoverWidget-foreground, var(--fg));
+  border: 1px solid var(--vscode-editorHoverWidget-border, var(--border));
+  border-radius: 4px;
+  padding: 6px 9px;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.3));
+  display: none;
+}
+
+.tip b {
+  font-weight: 600;
+}
+
+.tip .m {
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge.current,
+  .node.here .halo,
+  .live::before {
+    animation: none;
+  }
+}
