@@ -173,12 +173,101 @@ test('command classification', () => {
   assert.equal(classifyCommand('npm install zod'), 'install');
   assert.equal(classifyCommand('npx tsc --noEmit'), 'build');
   assert.equal(classifyCommand('git status'), 'git');
-  assert.equal(classifyCommand('ls -la'), 'run');
+  assert.equal(classifyCommand('ls -la'), 'search');
+  assert.equal(classifyCommand('echo done'), 'run');
   assert.equal(guessTestOutcome('Tests: 12 passed, 12 total', false), 'pass');
   assert.equal(guessTestOutcome('2 failed, 10 passed', false), 'fail');
   assert.equal(guessTestOutcome('0 failed, 10 passed', false), 'pass');
   assert.equal(describeTool('mcp__github__create_issue', {}).title, 'github · create_issue');
   assert.equal(describeTool('Read', { file_path: 'src/a.ts' }, '/w').filePath, path.normalize('/w/src/a.ts'));
+});
+
+test('shell commands that only look at code count as reading or searching', () => {
+  // Reads and searches through the shell are exploring, not checking.
+  assert.equal(classifyCommand('cat src/app.py'), 'read');
+  assert.equal(classifyCommand("sed -n '10,40p' src/app.py"), 'read');
+  assert.equal(classifyCommand('nl -ba src/app.py | sed -n "1,80p"'), 'read');
+  assert.equal(classifyCommand('grep -rn "def login" src | head -20'), 'search');
+  assert.equal(classifyCommand("rg -n 'class User' --type py"), 'search');
+  assert.equal(classifyCommand('cd repo && find . -name "*.py" | xargs grep -n login'), 'search');
+  assert.equal(classifyCommand("find . -name '*.py' -exec grep -l login {} +"), 'search');
+  assert.equal(classifyCommand('grep -r foo . 2>/dev/null'), 'search');
+  assert.equal(classifyCommand('Get-Content src/app.ps1'), 'read');
+  // Looking wins over words that only appear in what is looked at.
+  assert.equal(classifyCommand('cat test.py'), 'read');
+  assert.equal(classifyCommand('grep -n pytest setup.cfg'), 'search');
+  assert.equal(classifyCommand('cat Makefile | grep make'), 'search');
+  // Anything that can write a file or run other code is not a look.
+  assert.equal(classifyCommand('cat a.py > b.py'), 'run');
+  assert.equal(classifyCommand("sed -i 's/a/b/' x.py"), 'run');
+  assert.equal(classifyCommand("find . -name '*.pyc' -delete"), 'run');
+  assert.equal(classifyCommand("find . -name '*.py' -exec rm {} \\;"), 'run');
+  assert.equal(classifyCommand('cat $(git ls-files)'), 'run');
+  assert.equal(classifyCommand("cat <<'EOF' > notes.md\nhi\nEOF"), 'run');
+  assert.equal(classifyCommand('ls && npm test'), 'test');
+  assert.equal(classifyCommand('cd app && python -m pytest -q'), 'test');
+
+  // A shell read of one file lands on that file, with its lines when the command names them.
+  const sed = describeTool('Bash', { command: "sed -n '10,40p' src/app.py" }, '/w');
+  assert.equal(sed.kind, 'read');
+  assert.equal(sed.verb, 'Read');
+  assert.equal(sed.filePath, path.normalize('/w/src/app.py'));
+  assert.deepEqual(sed.readRange, { start: 10, end: 40 });
+  assert.equal(describeTool('Bash', { command: 'cd pkg && cat util.py' }, '/w').filePath, path.normalize('/w/pkg/util.py'));
+  assert.deepEqual(describeTool('Bash', { command: 'nl -ba src/a.py | sed -n "5,9p"' }, '/w').readRange, { start: 5, end: 9 });
+  assert.deepEqual(describeTool('Bash', { command: 'head -n 30 README.md' }, '/w').readRange, { start: 1, end: 30 });
+  assert.equal(describeTool('Bash', { command: 'cat a.py b.py' }, '/w').filePath, undefined);
+  assert.equal(describeTool('Bash', { command: 'cat src/*.py' }, '/w').filePath, undefined);
+  assert.equal(describeTool('Bash', { command: 'grep -n login src/app.py' }, '/w').kind, 'search');
+});
+
+test('shell reads are part of exploring: phases, output, revisits and the map', () => {
+  const ws = '/w/shell-app';
+  const base = { sessionId: 's-shell', cwd: ws, isSidechain: false, entrypoint: 'cli', version: '2.1.300' };
+  let n = 0;
+  const at = (s) => new Date(Date.parse('2026-11-19T09:00:00Z') + s * 1000).toISOString();
+  const rec = (o) => ({ ...base, uuid: 'sh' + ++n, ...o });
+  const call = (id, name, input, t) =>
+    rec({ type: 'assistant', timestamp: at(t), message: { id: 'm' + id, role: 'assistant', content: [{ type: 'tool_use', id, name, input }] } });
+  const result = (id, text, t, toolUseResult) =>
+    rec({ type: 'user', timestamp: at(t), message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, content: text }] }, toolUseResult });
+  const records = [
+    rec({ type: 'user', timestamp: at(0), message: { role: 'user', content: 'fix the login bug' } }),
+    call('t1', 'Bash', { command: 'grep -rn "def login" src' }, 1),
+    result('t1', 'src/auth.py:12:def login(user):', 2, { stdout: 'src/auth.py:12:def login(user):', stderr: '' }),
+    call('t2', 'Bash', { command: "sed -n '1,60p' src/auth.py" }, 3),
+    result('t2', 'def login(user):\n    ...', 4, { stdout: 'def login(user):\n    ...', stderr: '' }),
+    call('t3', 'Bash', { command: 'cat src/models.py src/db.py' }, 5),
+    result('t3', 'class User: ...', 6, { stdout: 'class User: ...', stderr: '' }),
+    call('t4', 'Edit', { file_path: ws + '/src/auth.py', old_string: 'pass', new_string: 'return check(user)' }, 7),
+    result('t4', 'The file has been updated.', 8),
+    rec({ type: 'assistant', timestamp: at(9), message: { id: 'm9', role: 'assistant', content: [{ type: 'text', text: 'Fixed.' }], stop_reason: 'end_turn' } }),
+  ];
+  const m = new SessionModel();
+  m.ingest(records);
+  const e = m.expeditions[0];
+  assert.deepEqual(
+    e.steps.map((s) => s.kind),
+    ['search', 'read', 'read', 'edit'],
+  );
+  // The output of a shell read is kept so "Show Output" still works.
+  assert.match(e.steps[1].fullOutput, /def login/);
+  // The sed read lands on src/auth.py, so the edit is a return to that file.
+  assert.equal(e.steps[1].filePath, path.normalize(ws + '/src/auth.py'));
+  assert.equal(e.steps[3].revisitOf, '2');
+  // Explore, then change: nothing here was a check.
+  assert.deepEqual(
+    phaseRuns(m.flatSteps(e)).map((r) => r.phase),
+    ['explore', 'change'],
+  );
+  const insights = insightsFor(m.flatSteps(e), (p) => p);
+  assert.ok(insights.some((i) => /^Scouted first: 3 looks/.test(i.text)), insights.map((i) => i.text).join(' | '));
+  assert.ok(insights.some((i) => /without running any command to check it/.test(i.text)));
+  // A shell read of several files stays at the terminal on the map.
+  const payload = buildTrailPayload(m, e.id, (p) => path.relative(ws, p), () => 'src');
+  assert.equal(payload.steps[2].node, 'station:terminal');
+  assert.equal(payload.steps[0].node, 'station:search');
+  assert.equal(payload.steps[1].node, 'file:' + require(path.join(out, 'model/session')).fileKey(ws + '/src/auth.py'));
 });
 
 test('patch ranges handle pure deletions', () => {

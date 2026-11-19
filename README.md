@@ -15,6 +15,7 @@ A sidebar view with every prompt you sent and, under each one, every move Claude
 
 - What Claude said right before each move, and its visible thinking when the session has it, so you can see why it made the move.
 - Plain verbs you can scan: Read, Edited, Created, Searched, Ran, Tested, Delegated.
+- Shell commands that only look at code, such as `cat`, `sed -n`, `nl`, `grep`, `rg`, `find` or `ls`, count as Read or Searched, so they show up as exploring rather than as checks. A shell read of one file lands on that file, with its lines when the command names them.
 - `↩ back from #3` when Claude returns to a file, and `⟲ after failure` when it changes code right after a failing check (a fix loop).
 - Test runs marked as passing or failing.
 - Subagent moves nested under the task that started them.

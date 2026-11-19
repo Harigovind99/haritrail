@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { fileKey, isCheckKind, SessionModel } from './session';
 import { Expedition, Step, StepKind } from './types';
-import { oneLine } from './describe';
+import { isShellTool, oneLine } from './describe';
 
 /** Where a step "lands" on the map: a file, or one of the fixed stations. */
 export type StationId = 'terminal' | 'search' | 'web' | 'agents' | 'plan' | 'tools' | 'you';
@@ -37,6 +37,17 @@ export function stationFor(kind: StepKind): StationId {
     default:
       return 'tools';
   }
+}
+
+/**
+ * Where a move without a file lands. A shell read that prints several files stays at the terminal,
+ * where it ran; everything else goes to the station for its kind.
+ */
+export function stationForStep(s: Pick<Step, 'kind' | 'tool'>): StationId {
+  if (s.kind === 'read' && isShellTool(s.tool)) {
+    return 'terminal';
+  }
+  return stationFor(s.kind);
 }
 
 export type Phase = 'explore' | 'change' | 'verify' | 'other';
@@ -439,7 +450,7 @@ export function buildTrailPayload(
         });
       }
     } else {
-      const st = stationFor(s.kind);
+      const st = stationForStep(s);
       nodeId = 'station:' + st;
       if (!nodes.has(nodeId)) {
         nodes.set(nodeId, { id: nodeId, kind: 'station', label: STATIONS[st], path: STATIONS[st], group: '', status: 'station', visits: 0, firstIndex: index });

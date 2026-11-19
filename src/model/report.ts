@@ -1,6 +1,6 @@
 import { oneLine } from './describe';
 import { SessionModel } from './session';
-import { fileTouches, insightsFor, phaseRuns, statsFor, stationFor, STATIONS } from './trail';
+import { fileTouches, insightsFor, phaseRuns, statsFor, stationForStep, STATIONS } from './trail';
 import { Expedition, Step } from './types';
 
 function dur(ms: number): string {
@@ -31,12 +31,12 @@ function mermaid(steps: Step[], rel: (p: string) => string): string {
   const ids = new Map<string, string>();
   const lines: string[] = ['flowchart LR'];
   const nodeOf = (s: Step) => {
-    const key = s.filePath ? 'f:' + s.filePath : 's:' + stationFor(s.kind);
+    const key = s.filePath ? 'f:' + s.filePath : 's:' + stationForStep(s);
     let id = ids.get(key);
     if (!id) {
       id = 'n' + ids.size;
       ids.set(key, id);
-      const label = s.filePath ? rel(s.filePath) : STATIONS[stationFor(s.kind)];
+      const label = s.filePath ? rel(s.filePath) : STATIONS[stationForStep(s)];
       lines.push(s.filePath ? `  ${id}["${mermaidLabel(label)}"]` : `  ${id}(("${mermaidLabel(label)}"))`);
     }
     return id;
