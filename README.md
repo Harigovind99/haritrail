@@ -71,8 +71,8 @@ HariTrail is for Claude Code. GitHub Copilot Chat does not save Claude Code sess
 
 From the `.vsix` file:
 
-- In VS Code, open the Extensions view, click the `...` menu, choose Install from VSIX and pick `haritrail-1.0.0.vsix`, or
-- run `code --install-extension haritrail-1.0.0.vsix` in a terminal.
+- In VS Code, open the Extensions view, click the `...` menu, choose Install from VSIX and pick `haritrail-1.0.1.vsix`, or
+- run `code --install-extension haritrail-1.0.1.vsix` in a terminal.
 
 From source:
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.1 (2026-11-19)
 
 - Shell commands that only read or search code (`cat`, `head`, `sed -n`, `nl`, `grep`, `rg`, `find`, `ls`, `Get-Content` and similar, including pipes and `cd dir &&`) now count as Read or Searched instead of Ran. They are part of the Explore phase and of "Scouted first", and no longer count as checks.
 - A shell read of a single file (`cat src/app.py`, `sed -n '10,40p' src/app.py`, `nl -ba file | sed -n '5,9p'`) lands on that file: it gets a footprint, counts for revisits, and keeps its line range.
