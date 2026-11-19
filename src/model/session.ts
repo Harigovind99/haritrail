@@ -4,6 +4,7 @@ import {
   describeTool,
   guessTestOutcome,
   isPatchHunks,
+  isShellTool,
   oneLine,
   rangesFromPatch,
   verbFor,
@@ -615,7 +616,8 @@ export class SessionModel {
 
     const tur: Rec | undefined = single && rec.toolUseResult && typeof rec.toolUseResult === 'object' ? rec.toolUseResult : undefined;
 
-    if (['run', 'test', 'build', 'git', 'install'].includes(step.kind)) {
+    // Keep the output of every shell command, including ones that only read or search (cat, grep...).
+    if (['run', 'test', 'build', 'git', 'install'].includes(step.kind) || isShellTool(step.tool)) {
       let out = text;
       if (tur && (typeof tur.stdout === 'string' || typeof tur.stderr === 'string')) {
         out = [tur.stdout, tur.stderr].filter((x) => typeof x === 'string' && x.length).join('\n');
