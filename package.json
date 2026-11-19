@@ -2,7 +2,7 @@
   "name": "haritrail",
   "displayName": "HariTrail",
   "description": "Watch Claude Code work through your codebase live: every file it reads, edits and creates, every command and test, and every loop back after a failure. See it as a journey, a map of your project or lanes over time, and replay it step by step.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "harigovind99",
   "author": {
     "name": "Harigovind H",
@@ -92,72 +92,311 @@
       }
     ],
     "commands": [
-      { "command": "haritrail.openMap", "title": "Open Trail Map", "category": "HariTrail", "icon": "$(graph)" },
-      { "command": "haritrail.pickSession", "title": "Choose Session...", "category": "HariTrail", "icon": "$(history)" },
-      { "command": "haritrail.followLatest", "title": "Follow Latest Session", "category": "HariTrail", "icon": "$(pinned)" },
-      { "command": "haritrail.refresh", "title": "Reload Session", "category": "HariTrail", "icon": "$(refresh)" },
-      { "command": "haritrail.exportReport", "title": "Export Journey Report", "category": "HariTrail", "icon": "$(export)" },
-      { "command": "haritrail.rideAlongOn", "title": "Start Ride-Along (editor follows Claude)", "category": "HariTrail", "icon": "$(eye)" },
-      { "command": "haritrail.rideAlongOff", "title": "Stop Ride-Along", "category": "HariTrail", "icon": "$(eye-closed)" },
-      { "command": "haritrail.inkOn", "title": "Show Ink Marks in Editors", "category": "HariTrail" },
-      { "command": "haritrail.inkOff", "title": "Hide Ink Marks in Editors", "category": "HariTrail" },
-      { "command": "haritrail.scopePrompt", "title": "Footprints: Focused Prompt Only", "category": "HariTrail", "icon": "$(milestone)" },
-      { "command": "haritrail.scopeSession", "title": "Footprints: Whole Session", "category": "HariTrail", "icon": "$(layers)" },
-      { "command": "haritrail.focusLatest", "title": "Focus Latest Prompt", "category": "HariTrail", "icon": "$(arrow-down)" },
-      { "command": "haritrail.showLog", "title": "Show Log", "category": "HariTrail" },
-      { "command": "haritrail.openSettings", "title": "Open Settings", "category": "HariTrail" },
-      { "command": "haritrail.openStep", "title": "Open", "category": "HariTrail", "icon": "$(go-to-file)" },
-      { "command": "haritrail.showDiff", "title": "Show Change", "category": "HariTrail", "icon": "$(diff)" },
-      { "command": "haritrail.showOutput", "title": "Show Output", "category": "HariTrail", "icon": "$(output)" },
-      { "command": "haritrail.showOnMap", "title": "Show on Trail Map", "category": "HariTrail", "icon": "$(graph)" },
-      { "command": "haritrail.revealStep", "title": "Find in Journey", "category": "HariTrail" },
-      { "command": "haritrail.focusExpedition", "title": "Focus This Prompt", "category": "HariTrail", "icon": "$(target)" },
-      { "command": "haritrail.showText", "title": "Show Text", "category": "HariTrail" }
+      {
+        "command": "haritrail.openMap",
+        "title": "Open Trail Map",
+        "category": "HariTrail",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "haritrail.pickSession",
+        "title": "Choose Session...",
+        "category": "HariTrail",
+        "icon": "$(history)"
+      },
+      {
+        "command": "haritrail.followLatest",
+        "title": "Follow Latest Session",
+        "category": "HariTrail",
+        "icon": "$(pinned)"
+      },
+      {
+        "command": "haritrail.refresh",
+        "title": "Reload Session",
+        "category": "HariTrail",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "haritrail.exportReport",
+        "title": "Export Journey Report",
+        "category": "HariTrail",
+        "icon": "$(export)"
+      },
+      {
+        "command": "haritrail.rideAlongOn",
+        "title": "Start Ride-Along (editor follows Claude)",
+        "category": "HariTrail",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "haritrail.rideAlongOff",
+        "title": "Stop Ride-Along",
+        "category": "HariTrail",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "haritrail.inkOn",
+        "title": "Show Ink Marks in Editors",
+        "category": "HariTrail"
+      },
+      {
+        "command": "haritrail.inkOff",
+        "title": "Hide Ink Marks in Editors",
+        "category": "HariTrail"
+      },
+      {
+        "command": "haritrail.scopePrompt",
+        "title": "Footprints: Focused Prompt Only",
+        "category": "HariTrail",
+        "icon": "$(milestone)"
+      },
+      {
+        "command": "haritrail.scopeSession",
+        "title": "Footprints: Whole Session",
+        "category": "HariTrail",
+        "icon": "$(layers)"
+      },
+      {
+        "command": "haritrail.focusLatest",
+        "title": "Focus Latest Prompt",
+        "category": "HariTrail",
+        "icon": "$(arrow-down)"
+      },
+      {
+        "command": "haritrail.showLog",
+        "title": "Show Log",
+        "category": "HariTrail"
+      },
+      {
+        "command": "haritrail.openSettings",
+        "title": "Open Settings",
+        "category": "HariTrail"
+      },
+      {
+        "command": "haritrail.openStep",
+        "title": "Open",
+        "category": "HariTrail",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "haritrail.showDiff",
+        "title": "Show Change",
+        "category": "HariTrail",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "haritrail.showOutput",
+        "title": "Show Output",
+        "category": "HariTrail",
+        "icon": "$(output)"
+      },
+      {
+        "command": "haritrail.showOnMap",
+        "title": "Show on Trail Map",
+        "category": "HariTrail",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "haritrail.revealStep",
+        "title": "Find in Journey",
+        "category": "HariTrail"
+      },
+      {
+        "command": "haritrail.focusExpedition",
+        "title": "Focus This Prompt",
+        "category": "HariTrail",
+        "icon": "$(target)"
+      },
+      {
+        "command": "haritrail.showText",
+        "title": "Show Text",
+        "category": "HariTrail"
+      }
     ],
     "menus": {
       "commandPalette": [
-        { "command": "haritrail.openStep", "when": "false" },
-        { "command": "haritrail.showDiff", "when": "false" },
-        { "command": "haritrail.showOutput", "when": "false" },
-        { "command": "haritrail.showOnMap", "when": "false" },
-        { "command": "haritrail.revealStep", "when": "false" },
-        { "command": "haritrail.focusExpedition", "when": "false" },
-        { "command": "haritrail.showText", "when": "false" },
-        { "command": "haritrail.rideAlongOn", "when": "!haritrail.rideAlong" },
-        { "command": "haritrail.rideAlongOff", "when": "haritrail.rideAlong" },
-        { "command": "haritrail.inkOn", "when": "!haritrail.ink" },
-        { "command": "haritrail.inkOff", "when": "haritrail.ink" },
-        { "command": "haritrail.followLatest", "when": "haritrail.pinned" }
+        {
+          "command": "haritrail.openStep",
+          "when": "false"
+        },
+        {
+          "command": "haritrail.showDiff",
+          "when": "false"
+        },
+        {
+          "command": "haritrail.showOutput",
+          "when": "false"
+        },
+        {
+          "command": "haritrail.showOnMap",
+          "when": "false"
+        },
+        {
+          "command": "haritrail.revealStep",
+          "when": "false"
+        },
+        {
+          "command": "haritrail.focusExpedition",
+          "when": "false"
+        },
+        {
+          "command": "haritrail.showText",
+          "when": "false"
+        },
+        {
+          "command": "haritrail.rideAlongOn",
+          "when": "!haritrail.rideAlong"
+        },
+        {
+          "command": "haritrail.rideAlongOff",
+          "when": "haritrail.rideAlong"
+        },
+        {
+          "command": "haritrail.inkOn",
+          "when": "!haritrail.ink"
+        },
+        {
+          "command": "haritrail.inkOff",
+          "when": "haritrail.ink"
+        },
+        {
+          "command": "haritrail.followLatest",
+          "when": "haritrail.pinned"
+        }
       ],
       "view/title": [
-        { "command": "haritrail.openMap", "when": "view == haritrail.journey", "group": "navigation@1" },
-        { "command": "haritrail.rideAlongOn", "when": "view == haritrail.journey && !haritrail.rideAlong", "group": "navigation@2" },
-        { "command": "haritrail.rideAlongOff", "when": "view == haritrail.journey && haritrail.rideAlong", "group": "navigation@2" },
-        { "command": "haritrail.pickSession", "when": "view == haritrail.journey", "group": "navigation@3" },
-        { "command": "haritrail.followLatest", "when": "view == haritrail.journey && haritrail.pinned", "group": "navigation@4" },
-        { "command": "haritrail.exportReport", "when": "view == haritrail.journey", "group": "1_actions@1" },
-        { "command": "haritrail.focusLatest", "when": "view == haritrail.journey", "group": "1_actions@2" },
-        { "command": "haritrail.refresh", "when": "view == haritrail.journey", "group": "1_actions@3" },
-        { "command": "haritrail.inkOn", "when": "view == haritrail.journey && !haritrail.ink", "group": "2_display@1" },
-        { "command": "haritrail.inkOff", "when": "view == haritrail.journey && haritrail.ink", "group": "2_display@1" },
-        { "command": "haritrail.openSettings", "when": "view == haritrail.journey", "group": "3_misc@1" },
-        { "command": "haritrail.showLog", "when": "view == haritrail.journey", "group": "3_misc@2" },
-        { "command": "haritrail.scopeSession", "when": "view == haritrail.footprints && !haritrail.scopeSession", "group": "navigation@1" },
-        { "command": "haritrail.scopePrompt", "when": "view == haritrail.footprints && haritrail.scopeSession", "group": "navigation@1" }
+        {
+          "command": "haritrail.openMap",
+          "when": "view == haritrail.journey",
+          "group": "navigation@1"
+        },
+        {
+          "command": "haritrail.rideAlongOn",
+          "when": "view == haritrail.journey && !haritrail.rideAlong",
+          "group": "navigation@2"
+        },
+        {
+          "command": "haritrail.rideAlongOff",
+          "when": "view == haritrail.journey && haritrail.rideAlong",
+          "group": "navigation@2"
+        },
+        {
+          "command": "haritrail.pickSession",
+          "when": "view == haritrail.journey",
+          "group": "navigation@3"
+        },
+        {
+          "command": "haritrail.followLatest",
+          "when": "view == haritrail.journey && haritrail.pinned",
+          "group": "navigation@4"
+        },
+        {
+          "command": "haritrail.exportReport",
+          "when": "view == haritrail.journey",
+          "group": "1_actions@1"
+        },
+        {
+          "command": "haritrail.focusLatest",
+          "when": "view == haritrail.journey",
+          "group": "1_actions@2"
+        },
+        {
+          "command": "haritrail.refresh",
+          "when": "view == haritrail.journey",
+          "group": "1_actions@3"
+        },
+        {
+          "command": "haritrail.inkOn",
+          "when": "view == haritrail.journey && !haritrail.ink",
+          "group": "2_display@1"
+        },
+        {
+          "command": "haritrail.inkOff",
+          "when": "view == haritrail.journey && haritrail.ink",
+          "group": "2_display@1"
+        },
+        {
+          "command": "haritrail.openSettings",
+          "when": "view == haritrail.journey",
+          "group": "3_misc@1"
+        },
+        {
+          "command": "haritrail.showLog",
+          "when": "view == haritrail.journey",
+          "group": "3_misc@2"
+        },
+        {
+          "command": "haritrail.scopeSession",
+          "when": "view == haritrail.footprints && !haritrail.scopeSession",
+          "group": "navigation@1"
+        },
+        {
+          "command": "haritrail.scopePrompt",
+          "when": "view == haritrail.footprints && haritrail.scopeSession",
+          "group": "navigation@1"
+        }
       ],
       "view/item/context": [
-        { "command": "haritrail.showDiff", "when": "view == haritrail.journey && viewItem =~ /\\.diff/", "group": "inline@1" },
-        { "command": "haritrail.showOutput", "when": "view == haritrail.journey && viewItem =~ /\\.output/", "group": "inline@1" },
-        { "command": "haritrail.showOnMap", "when": "view == haritrail.journey && viewItem =~ /^(step|expedition)/", "group": "inline@2" },
-        { "command": "haritrail.exportReport", "when": "view == haritrail.journey && viewItem =~ /^expedition/", "group": "inline@3" },
-        { "command": "haritrail.openStep", "when": "view == haritrail.journey && viewItem =~ /^step/", "group": "1_open@1" },
-        { "command": "haritrail.showDiff", "when": "view == haritrail.journey && viewItem =~ /\\.diff/", "group": "1_open@2" },
-        { "command": "haritrail.showOutput", "when": "view == haritrail.journey && viewItem =~ /\\.output/", "group": "1_open@3" },
-        { "command": "haritrail.showOnMap", "when": "view == haritrail.journey && viewItem =~ /^(step|expedition)/", "group": "1_open@4" },
-        { "command": "haritrail.focusExpedition", "when": "view == haritrail.journey && viewItem =~ /^expedition/", "group": "2_focus@1" },
-        { "command": "haritrail.exportReport", "when": "view == haritrail.journey && viewItem =~ /^expedition/", "group": "2_focus@2" },
-        { "command": "haritrail.openStep", "when": "view == haritrail.footprints && viewItem == footprintFile", "group": "1_open@1" },
-        { "command": "haritrail.showOnMap", "when": "view == haritrail.footprints && viewItem == footprintFile", "group": "inline@1" }
+        {
+          "command": "haritrail.showDiff",
+          "when": "view == haritrail.journey && viewItem =~ /\\.diff/",
+          "group": "inline@1"
+        },
+        {
+          "command": "haritrail.showOutput",
+          "when": "view == haritrail.journey && viewItem =~ /\\.output/",
+          "group": "inline@1"
+        },
+        {
+          "command": "haritrail.showOnMap",
+          "when": "view == haritrail.journey && viewItem =~ /^(step|expedition)/",
+          "group": "inline@2"
+        },
+        {
+          "command": "haritrail.exportReport",
+          "when": "view == haritrail.journey && viewItem =~ /^expedition/",
+          "group": "inline@3"
+        },
+        {
+          "command": "haritrail.openStep",
+          "when": "view == haritrail.journey && viewItem =~ /^step/",
+          "group": "1_open@1"
+        },
+        {
+          "command": "haritrail.showDiff",
+          "when": "view == haritrail.journey && viewItem =~ /\\.diff/",
+          "group": "1_open@2"
+        },
+        {
+          "command": "haritrail.showOutput",
+          "when": "view == haritrail.journey && viewItem =~ /\\.output/",
+          "group": "1_open@3"
+        },
+        {
+          "command": "haritrail.showOnMap",
+          "when": "view == haritrail.journey && viewItem =~ /^(step|expedition)/",
+          "group": "1_open@4"
+        },
+        {
+          "command": "haritrail.focusExpedition",
+          "when": "view == haritrail.journey && viewItem =~ /^expedition/",
+          "group": "2_focus@1"
+        },
+        {
+          "command": "haritrail.exportReport",
+          "when": "view == haritrail.journey && viewItem =~ /^expedition/",
+          "group": "2_focus@2"
+        },
+        {
+          "command": "haritrail.openStep",
+          "when": "view == haritrail.footprints && viewItem == footprintFile",
+          "group": "1_open@1"
+        },
+        {
+          "command": "haritrail.showOnMap",
+          "when": "view == haritrail.footprints && viewItem == footprintFile",
+          "group": "inline@1"
+        }
       ]
     },
     "configuration": {
@@ -183,8 +422,14 @@
         },
         "haritrail.footprints.scope": {
           "type": "string",
-          "enum": ["prompt", "session"],
-          "enumDescriptions": ["Only the focused prompt (the latest, unless you pick another in Journey)", "Every prompt in the session"],
+          "enum": [
+            "prompt",
+            "session"
+          ],
+          "enumDescriptions": [
+            "Only the focused prompt (the latest, unless you pick another in Journey)",
+            "Every prompt in the session"
+          ],
           "default": "prompt",
           "markdownDescription": "Which moves drive Footprints and Ink Marks."
         },
@@ -226,17 +471,116 @@
       }
     },
     "colors": [
-      { "id": "haritrail.read", "description": "HariTrail: files Claude read.", "defaults": { "dark": "#6CB6FF", "light": "#0969DA", "highContrast": "#79C0FF", "highContrastLight": "#0550AE" } },
-      { "id": "haritrail.edit", "description": "HariTrail: files Claude edited.", "defaults": { "dark": "#E3B341", "light": "#9A6700", "highContrast": "#F2CC60", "highContrastLight": "#7D4E00" } },
-      { "id": "haritrail.create", "description": "HariTrail: files Claude created.", "defaults": { "dark": "#57C78A", "light": "#1A7F37", "highContrast": "#7EE2A8", "highContrastLight": "#116329" } },
-      { "id": "haritrail.search", "description": "HariTrail: searches and web lookups.", "defaults": { "dark": "#B392F0", "light": "#8250DF", "highContrast": "#D2A8FF", "highContrastLight": "#6639BA" } },
-      { "id": "haritrail.run", "description": "HariTrail: commands, builds and tests.", "defaults": { "dark": "#F0883E", "light": "#BC4C00", "highContrast": "#FFA657", "highContrastLight": "#953800" } },
-      { "id": "haritrail.delegate", "description": "HariTrail: subagents and tools.", "defaults": { "dark": "#56D4DD", "light": "#1B7C83", "highContrast": "#7EE5ED", "highContrastLight": "#155E64" } },
-      { "id": "haritrail.plan", "description": "HariTrail: planning and other moves.", "defaults": { "dark": "#9DA7B3", "light": "#57606A", "highContrast": "#C9D1D9", "highContrastLight": "#424A53" } },
-      { "id": "haritrail.you", "description": "HariTrail: your messages.", "defaults": { "dark": "#FF7EB6", "light": "#BF3989", "highContrast": "#FF9BCE", "highContrastLight": "#99286E" } },
-      { "id": "haritrail.error", "description": "HariTrail: failed moves.", "defaults": { "dark": "#F85149", "light": "#CF222E", "highContrast": "#FF6A69", "highContrastLight": "#A40E26" } },
-      { "id": "haritrail.inkBackground", "description": "HariTrail: background of lines Claude changed.", "defaults": { "dark": "#E3B34114", "light": "#9A670012", "highContrast": "#00000000", "highContrastLight": "#00000000" } },
-      { "id": "haritrail.signature", "description": "HariTrail: the faint signature after changed lines.", "defaults": { "dark": "#E3B34180", "light": "#9A670099", "highContrast": "#F2CC60", "highContrastLight": "#7D4E00" } }
+      {
+        "id": "haritrail.read",
+        "description": "HariTrail: files Claude read.",
+        "defaults": {
+          "dark": "#6CB6FF",
+          "light": "#0969DA",
+          "highContrast": "#79C0FF",
+          "highContrastLight": "#0550AE"
+        }
+      },
+      {
+        "id": "haritrail.edit",
+        "description": "HariTrail: files Claude edited.",
+        "defaults": {
+          "dark": "#E3B341",
+          "light": "#9A6700",
+          "highContrast": "#F2CC60",
+          "highContrastLight": "#7D4E00"
+        }
+      },
+      {
+        "id": "haritrail.create",
+        "description": "HariTrail: files Claude created.",
+        "defaults": {
+          "dark": "#57C78A",
+          "light": "#1A7F37",
+          "highContrast": "#7EE2A8",
+          "highContrastLight": "#116329"
+        }
+      },
+      {
+        "id": "haritrail.search",
+        "description": "HariTrail: searches and web lookups.",
+        "defaults": {
+          "dark": "#B392F0",
+          "light": "#8250DF",
+          "highContrast": "#D2A8FF",
+          "highContrastLight": "#6639BA"
+        }
+      },
+      {
+        "id": "haritrail.run",
+        "description": "HariTrail: commands, builds and tests.",
+        "defaults": {
+          "dark": "#F0883E",
+          "light": "#BC4C00",
+          "highContrast": "#FFA657",
+          "highContrastLight": "#953800"
+        }
+      },
+      {
+        "id": "haritrail.delegate",
+        "description": "HariTrail: subagents and tools.",
+        "defaults": {
+          "dark": "#56D4DD",
+          "light": "#1B7C83",
+          "highContrast": "#7EE5ED",
+          "highContrastLight": "#155E64"
+        }
+      },
+      {
+        "id": "haritrail.plan",
+        "description": "HariTrail: planning and other moves.",
+        "defaults": {
+          "dark": "#9DA7B3",
+          "light": "#57606A",
+          "highContrast": "#C9D1D9",
+          "highContrastLight": "#424A53"
+        }
+      },
+      {
+        "id": "haritrail.you",
+        "description": "HariTrail: your messages.",
+        "defaults": {
+          "dark": "#FF7EB6",
+          "light": "#BF3989",
+          "highContrast": "#FF9BCE",
+          "highContrastLight": "#99286E"
+        }
+      },
+      {
+        "id": "haritrail.error",
+        "description": "HariTrail: failed moves.",
+        "defaults": {
+          "dark": "#F85149",
+          "light": "#CF222E",
+          "highContrast": "#FF6A69",
+          "highContrastLight": "#A40E26"
+        }
+      },
+      {
+        "id": "haritrail.inkBackground",
+        "description": "HariTrail: background of lines Claude changed.",
+        "defaults": {
+          "dark": "#E3B34114",
+          "light": "#9A670012",
+          "highContrast": "#00000000",
+          "highContrastLight": "#00000000"
+        }
+      },
+      {
+        "id": "haritrail.signature",
+        "description": "HariTrail: the faint signature after changed lines.",
+        "defaults": {
+          "dark": "#E3B34180",
+          "light": "#9A670099",
+          "highContrast": "#F2CC60",
+          "highContrastLight": "#7D4E00"
+        }
+      }
     ]
   },
   "scripts": {
